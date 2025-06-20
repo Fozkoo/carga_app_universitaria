@@ -31,7 +31,7 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
       const data = await newsService.getAllNews();
       setNews(data);
     } catch (error) {
-      onError('Error al cargar las noticias');
+      onError('Error al cargar las noticias' + error);
     } finally {
       setLoading(false);
     }
@@ -45,17 +45,17 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
     try {
       setActionLoading(prev => ({ ...prev, [id]: true }));
       await newsService.deleteNewsById(id);
-      setNews(news.filter(item => item.id !== id));
+      setNews(news.filter(item => item.idnews !== id));
       onSuccess();
     } catch (error) {
-      onError('Error al eliminar la noticia');
+      onError('Error al eliminar la noticia' + error);
     } finally {
       setActionLoading(prev => ({ ...prev, [id]: false }));
     }
   };
 
   const handleEdit = (newsItem: News) => {
-    setEditingNews(newsItem);
+    setEditingNews(newsItem); // debug cami
     setEditFormData({
       title: newsItem.title,
       content: newsItem.content,
@@ -68,11 +68,11 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
     if (!editingNews) return;
 
     try {
-      setActionLoading(prev => ({ ...prev, [editingNews.id]: true }));
-      await newsService.updateNewsById(editingNews.id, editFormData);
+      setActionLoading(prev => ({ ...prev, [editingNews.idnews]: true }));
+      await newsService.updateNewsById(editingNews.idnews, editFormData);
       
       setNews(news.map(item => 
-        item.id === editingNews.id 
+        item.idnews === editingNews.idnews 
           ? { ...item, ...editFormData }
           : item
       ));
@@ -80,9 +80,9 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
       setEditingNews(null);
       onSuccess();
     } catch (error) {
-      onError('Error al actualizar la noticia');
+      onError('Error al actualizar la noticia' + error);
     } finally {
-      setActionLoading(prev => ({ ...prev, [editingNews.id]: false }));
+      setActionLoading(prev => ({ ...prev, [editingNews.idnews]: false }));
     }
   };
 
@@ -118,11 +118,11 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
           <p className="text-gray-500">No hay noticias disponibles</p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {news.map((newsItem) => (
-            <div key={newsItem.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              {editingNews?.id === newsItem.id ? (
-                <form onSubmit={handleUpdate} className="space-y-4">
+            <div key={newsItem.idnews} className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+              {editingNews?.idnews === newsItem.idnews ? (
+                <form onSubmit={handleUpdate} className="space-y-3">
                   <FormInput
                     label="Título"
                     name="title"
@@ -136,7 +136,7 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
                     value={editFormData.content}
                     onChange={handleChange}
                     multiline
-                    rows={4}
+                    rows={3}
                     required
                   />
                   <FormInput
@@ -144,20 +144,19 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
                     name="image_path"
                     value={editFormData.image_path}
                     onChange={handleChange}
-                    required
                   />
-                  <div className="flex space-x-3">
+                  <div className="flex space-x-2">
                     <LoadingButton
-                      loading={actionLoading[newsItem.id] || false}
+                      loading={actionLoading[newsItem.idnews] || false}
                       onClick={() => {}}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-sm px-3 py-1"
                     >
                       Guardar
                     </LoadingButton>
                     <button
                       type="button"
                       onClick={() => setEditingNews(null)}
-                      className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -165,16 +164,20 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
                 </form>
               ) : (
                 <>
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-3">
                     <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2">{newsItem.title}</h4>
-                      <p className="text-gray-600 mb-3">{newsItem.content}</p>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Image className="w-4 h-4 mr-1" />
-                        <span className="truncate">{newsItem.image_path}</span>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                        {newsItem.title || 'Sin título'}
+                      </h4>
+                      <p className="text-gray-600 mb-3 text-sm leading-relaxed">
+                        {newsItem.content || 'Sin contenido'}
+                      </p>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Image className="w-3 h-3 mr-1" />
+                        <span className="truncate">{newsItem.image_path || 'Sin imagen'}</span>
                       </div>
                     </div>
-                    <div className="flex space-x-2 ml-4">
+                    <div className="flex space-x-1 ml-4">
                       <button
                         onClick={() => handleEdit(newsItem)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -183,8 +186,8 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(newsItem.id)}
-                        disabled={actionLoading[newsItem.id]}
+                        onClick={() => handleDelete(newsItem.idnews)}
+                        disabled={actionLoading[newsItem.idnews]}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                         title="Eliminar noticia"
                       >
@@ -192,8 +195,8 @@ const NewsList: React.FC<NewsListProps> = ({ onSuccess, onError }) => {
                       </button>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    ID: {newsItem.id}
+                  <div className="text-xs text-gray-500">
+                    ID: {newsItem.idnews}
                   </div>
                 </>
               )}

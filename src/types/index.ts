@@ -5,7 +5,7 @@ export interface Topic {
 }
 
 export interface News {
-  id: number;
+  idnews: number;
   title: string;
   content: string;
   image_path: string;
