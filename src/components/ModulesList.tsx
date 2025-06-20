@@ -34,9 +34,10 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
   const fetchModules = async () => {
     try {
       setLoading(true);
-      const data = await moduleService.getAllModules();
+      const data = await moduleService.getAllModulesWithTopics();
       setModules(data);
     } catch (error) {
+      console.error('Error al cargar los módulos' + error);
       onError('Error al cargar los módulos');
     } finally {
       setLoading(false);
@@ -48,6 +49,7 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
       const data = await topicService.getAllTopics();
       setTopics(data);
     } catch (error) {
+      console.error('Error al cargar los tópicos' + error);
       onError('Error al cargar los tópicos');
     }
   };
@@ -60,9 +62,10 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
     try {
       setActionLoading(prev => ({ ...prev, [id]: true }));
       await moduleService.deleteModuleById(id);
-      setModules(modules.filter(module => module.id !== id));
+      setModules(modules.filter(module => module.idmodule !== id));
       onSuccess();
     } catch (error) {
+      console.error('Error al eliminar el módulo' + error);
       onError('Error al eliminar el módulo');
     } finally {
       setActionLoading(prev => ({ ...prev, [id]: false }));
@@ -86,11 +89,11 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
     if (!editingModule) return;
 
     try {
-      setActionLoading(prev => ({ ...prev, [editingModule.id]: true }));
-      await moduleService.updateModuleById(editingModule.id, editFormData);
+      setActionLoading(prev => ({ ...prev, [editingModule.idmodule]: true }));
+      await moduleService.updateModuleById(editingModule.idmodule, editFormData);
       
       setModules(modules.map(module => 
-        module.id === editingModule.id 
+        module.idmodule === editingModule.idmodule 
           ? { ...module, ...editFormData }
           : module
       ));
@@ -98,9 +101,10 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
       setEditingModule(null);
       onSuccess();
     } catch (error) {
+      console.error('Error al actualizar el módulo' + error);
       onError('Error al actualizar el módulo');
     } finally {
-      setActionLoading(prev => ({ ...prev, [editingModule.id]: false }));
+      setActionLoading(prev => ({ ...prev, [editingModule.idmodule]: false }));
     }
   };
 
@@ -110,11 +114,6 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
       ...prev,
       [name]: name === 'topic_idtopic' ? parseInt(value) : value,
     }));
-  };
-
-  const getTopicName = (topicId: number) => {
-    const topic = topics.find(t => t.id === topicId);
-    return topic ? topic.name : `Tópico ${topicId}`;
   };
 
   if (loading) {
@@ -146,8 +145,8 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
       ) : (
         <div className="grid gap-4">
           {modules.map((module) => (
-            <div key={module.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              {editingModule?.id === module.id ? (
+            <div key={module.idmodule} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+              {editingModule?.idmodule === module.idmodule ? (
                 <form onSubmit={handleUpdate} className="space-y-4 max-h-96 overflow-y-auto pr-2">
                   <FormInput
                     label="Título"
@@ -196,14 +195,14 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
                     value={editFormData.topic_idtopic}
                     onChange={handleChange}
                     options={topics.map(topic => ({
-                      value: topic.id,
+                      value: topic.idtopic,
                       label: topic.name
                     }))}
                     required
                   />
                   <div className="flex space-x-3 sticky bottom-0 bg-white pt-4">
                     <LoadingButton
-                      loading={actionLoading[module.id] || false}
+                      loading={actionLoading[module.idmodule] || false}
                       onClick={() => {}}
                       className="bg-emerald-600 hover:bg-emerald-700"
                     >
@@ -242,7 +241,7 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
                       </div>
                       
                       <div className="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
-                        {getTopicName(module.topic_idtopic)}
+                        <span>Topico: {module.topicName}</span>
                       </div>
                     </div>
                     <div className="flex space-x-2 ml-4">
@@ -254,8 +253,8 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(module.id)}
-                        disabled={actionLoading[module.id]}
+                        onClick={() => handleDelete(module.idmodule)}
+                        disabled={actionLoading[module.idmodule]}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                         title="Eliminar módulo"
                       >
@@ -264,7 +263,7 @@ const ModulesList: React.FC<ModulesListProps> = ({ onSuccess, onError }) => {
                     </div>
                   </div>
                   <div className="text-sm text-gray-500">
-                    ID: {module.id}
+                    ID: {module.idmodule}
                   </div>
                 </>
               )}

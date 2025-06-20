@@ -75,6 +75,11 @@ export const moduleService = {
     return response.data;
   },
 
+  getAllModulesWithTopics: async (): Promise<Module[]> => {
+    const response = await api.get('/modules/with-topics');
+    return response.data;
+  },
+
   deleteModuleById: async (id: number) => {
     const response = await api.delete(`/modules/${id}`);
     return response.data;

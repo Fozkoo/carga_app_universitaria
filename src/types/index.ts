@@ -1,5 +1,5 @@
 export interface Topic {
-  id: number;
+  idtopic: number;
   name: string;
   description: string;
 }
@@ -12,13 +12,14 @@ export interface News {
 }
 
 export interface Module {
-  id: number;
+  idmodule: number;
   title: string;
   content: string;
   date_create: string;
   date_delete: string;
   image_path: string;
   topic_idtopic: number;
+  topicName: string;
 }
 
 export interface CreateTopicRequest {

@@ -30,6 +30,7 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
       const data = await topicService.getAllTopics();
       setTopics(data);
     } catch (error) {
+      console.error('Error al cargar los tópicos' + error);
       onError('Error al cargar los tópicos');
     } finally {
       setLoading(false);
@@ -44,9 +45,10 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
     try {
       setActionLoading(prev => ({ ...prev, [id]: true }));
       await topicService.deleteTopicById(id);
-      setTopics(topics.filter(topic => topic.id !== id));
+      setTopics(topics.filter(topic => topic.idtopic !== id));
       onSuccess();
     } catch (error) {
+      console.error('Error al eliminar el tópico' + error);
       onError('Error al eliminar el tópico');
     } finally {
       setActionLoading(prev => ({ ...prev, [id]: false }));
@@ -66,11 +68,11 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
     if (!editingTopic) return;
 
     try {
-      setActionLoading(prev => ({ ...prev, [editingTopic.id]: true }));
-      await topicService.updateTopicById(editingTopic.id, editFormData);
+      setActionLoading(prev => ({ ...prev, [editingTopic.idtopic]: true }));
+      await topicService.updateTopicById(editingTopic.idtopic, editFormData);
       
       setTopics(topics.map(topic => 
-        topic.id === editingTopic.id 
+        topic.idtopic === editingTopic.idtopic 
           ? { ...topic, ...editFormData }
           : topic
       ));
@@ -78,9 +80,10 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
       setEditingTopic(null);
       onSuccess();
     } catch (error) {
+      console.error('Error al actualizar el tópico' + error);
       onError('Error al actualizar el tópico');
     } finally {
-      setActionLoading(prev => ({ ...prev, [editingTopic.id]: false }));
+      setActionLoading(prev => ({ ...prev, [editingTopic.idtopic]: false }));
     }
   };
 
@@ -118,8 +121,8 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
       ) : (
         <div className="grid gap-4">
           {topics.map((topic) => (
-            <div key={topic.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              {editingTopic?.id === topic.id ? (
+            <div key={topic.idtopic} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+              {editingTopic?.idtopic === topic.idtopic ? (
                 <form onSubmit={handleUpdate} className="space-y-4">
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">{topic.name}</h4>
                   <FormInput
@@ -142,7 +145,7 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
                   />
                   <div className="flex space-x-3">
                     <LoadingButton
-                      loading={actionLoading[topic.id] || false}
+                      loading={actionLoading[topic.idtopic] || false}
                       onClick={() => {}}
                       className="bg-emerald-600 hover:bg-emerald-700"
                     >
@@ -173,8 +176,8 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(topic.id)}
-                        disabled={actionLoading[topic.id]}
+                        onClick={() => handleDelete(topic.idtopic)}
+                        disabled={actionLoading[topic.idtopic]}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                         title="Eliminar tópico"
                       >
@@ -183,7 +186,7 @@ const TopicsList: React.FC<TopicsListProps> = ({ onSuccess, onError }) => {
                     </div>
                   </div>
                   <div className="text-sm text-gray-500">
-                    ID: {topic.id}
+                    ID: {topic.idtopic}
                   </div>
                 </>
               )}

@@ -34,6 +34,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ onSuccess, onError }) => {
       onSuccess();
       setFormData({ title: '', content: '', image_path: '' });
     } catch (error) {
+      console.error('Error al crear la noticia' + error);
       onError('Error al crear la noticia. Por favor, intenta nuevamente.');
     } finally {
       setLoading(false);
