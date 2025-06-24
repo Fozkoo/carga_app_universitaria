@@ -136,7 +136,7 @@ const ModuleForm: React.FC<ModuleFormProps> = ({ onSuccess, onError }) => {
         value={formData.topic_idtopic}
         onChange={handleChange}
         options={topics.map(topic => ({
-          value: topic.id,
+          value: topic.idtopic,
           label: topic.name
         }))}
         placeholder="Selecciona un tópico"
